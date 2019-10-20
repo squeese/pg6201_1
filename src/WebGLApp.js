@@ -1,79 +1,171 @@
-import React, { Fragment } from 'react';
-import * as Options from './deps/Options';
+import React, { createRef, Component } from 'react';
+import { mat4, quat, vec3 } from 'gl-matrix';
+import { OptionsGUI, skyboxImages } from './deps/OptionsGUI';
+import { Canvas } from './deps/Canvas';
+import monkeyHighpoly from './deps/models/suzanneHighpoly.json';
+import monkeyLowpoly from './deps/models/suzanneLowpoly.json';
+import * as utils from './deps/utils';
+import * as shaders from './shaders';
 
-const log = title => ({ state }) => console.log(title, state);
+export default class extends Component {
+  constructor(props) {
+    super(props);
+    this.gl = createRef();
+    this.options = createRef();
+  }
+  initGL = ({ state:{ camera, material, lights, mesh }}) => {
+    const gl = this.gl.current;
 
-export default () => (
-  <Options.Provider>
-    <Options.Event onReady={log('root.READY')} />
-    <Options.Container>
-      <Options.Wrapper>
-        <Options.Dictionary name="camera">
-          <Options.Header>Camera</Options.Header>
-          <Options.InputFloat header="Field of View" name="fov" value={45} min={10} max={160} />
-          <Options.InputFloat header="Near" name="near" value={0.1} min={0.01} max={0.99} />
-          <Options.InputFloat header="Far" name="faar" value={100} min={1} />
-          <Options.InputFloat header="Offset" name="offset" value={10} min={1} />
-          <Options.InputVector header="Rotation" name="rotation" value={[0, 0, 0, 1]} />
-          <Options.Event onChange={log('camera.CHANGE')} />
-        </Options.Dictionary>
-        <Options.Dictionary name="mesh">
-          <Options.Header>Mesh</Options.Header>
-          <Options.InputDropdown header="Model" name="model" value={['suzanne', 'cube']} />
-          <Options.InputBool header="Low Polygon" name="lowpoly" value={false} />
-          <Options.InputBool header="Flatten Normals" name="flatten" value={false} />
-          <Options.Event onChange={log('mesh.CHANGE')} />
-        </Options.Dictionary>
-        <Options.Dictionary name="material">
-          <Options.Header>Material</Options.Header>
-          <Options.InputVector header="Ambient Color" name="ambient" value={[0.7, 0.7, 0.7]} min={0} max={1} step={0.01} />
-          <Options.InputVector header="Diffuse Color" name="diffuse" value={[0.7, 0.7, 0.7]} min={0} max={1} step={0.01} />
-          <Options.InputVector header="Specular Color" name="specular" value={[0.7, 0.7, 0.7]} min={0} max={1} step={0.01} />
-          <Options.InputFloat header="Specular Hightlight" name="hightlight" value={32} min={0} max={1024} step={0.1} />
-          <Options.InputFloat header="Reflection Scalar" name="reflection" value={0.5} min={0} max={1} step={0.01} />
-          <Options.InputFloat header="Refraction Scalar" name="refraction" value={0.5} min={0} max={1} step={0.01} />
-          <Options.Label>Refraction Index</Options.Label>
-          <Options.Context.Consumer children={({ state }) => (
-            <Options.Row>
-              <Options.Vector name="" value={[0.8, 0.85, 0.8]}>
-                {(value, index) => <Options.InputFloat key={index} name={index} value={value} disabled={index > 0 && !state.refractColors} />}
-              </Options.Vector>
-            </Options.Row>
-          )} />
-          <Options.InputBool header="Refract Colors" name="refractColors" value={true} />
-          <Options.Event onChange={log('material.CHANGE')} />
-        </Options.Dictionary>
-        <Options.List name="lights" min={1} max={3}>
-          {({ increment, decrement, list }) => (
-            <Fragment>
-              <Options.Header>
-                <span>Lights</span>
-                <button onClick={increment}>+</button>
-                <button onClick={decrement}>-</button>
-              </Options.Header>
-              {list.map(index => (
-                <Options.Dictionary key={index} name={index}>
-                  <Options.InputDropdown header=" " name="type" value={['Directional', 'Spotlight']} />
-                  <Options.InputVector header="Ambient Color" name="ambient" value={[0.7, 0.7, 0.7]} min={0} max={1} step={0.01} />
-                  <Options.InputVector header="Diffuse Color" name="diffuse" value={[0.7, 0.7, 0.7]} min={0} max={1} step={0.01} />
-                  <Options.InputVector header="Specular Color" name="specular" value={[0.7, 0.7, 0.7]} min={0} max={1} step={0.01} />
-                  <Options.Context.Consumer children={({ state }) => (
-                    <Options.InputVector
-                      header={state.type === 'Directional' ? 'Direction' : 'Position'}
-                      name="specular"
-                      value={[0.7, 0.7, 0.7]}
-                      min={0} 
-                      max={1}
-                      step={0.01}
-                    />
-                  )} />
-                </Options.Dictionary>
-              ))}
-              <Options.Event onChange={log('lights.CHANGE')} />
-            </Fragment>
-          )}
-        </Options.List>
-      </Options.Wrapper>
-    </Options.Container>
-  </Options.Provider>
-);
+    // Create the Camera Uniform Block Buffer
+    this.bufferCamera = utils.createUniformBuffer(gl, 0,
+      "projection", 16,  mat4.perspective(mat4.create(), camera.fov*(Math.PI/180), window.innerWidth/window.innerHeight, camera.near, camera.far),
+      "view",       16,  null,
+      "position",    4,  null);
+
+    // Create the Material Uniform Block Buffer
+    this.bufferMaterial = utils.createUniformBuffer(gl, 1,
+      "ambientColor",      3, material.ambient,
+      "diffuseColor",      3, material.diffuse,
+      "specularColor",     3, material.specular,
+      "specularHighlight", 1, [material.highlight],
+      "refractionIndex",   3, material.refractionIndex,
+      "refractionScalar",  1, [material.refractionScalar],
+      "reflectionScalar",  1, [material.reflectionScalar]);
+
+    // Create the Light Uniform block buffer, but since the buffer depends on the config, well
+    // create a function so we can recreate the buffer at a later time
+    this.createLightBuffer = lights => {
+      if (this.bufferLight)
+        this.bufferLight.cleanup();
+      this.bufferLight = utils.createUniformBuffer(gl, 2, ...utils.zip(3, Array.from(Array(lights.length)).map((_, i) => [
+        `ambientColor_${i}`,      3, lights[i].ambient,
+        `diffuseColor_${i}`,      3, lights[i].diffuse,
+        `specularColor_${i}`,     3, lights[i].specular,
+        `directionPosition_${i}`, 3, lights[i].vector,
+      ])));
+    };
+    this.createLightBuffer(lights);
+
+    // Create Shader Program for rendering of Skybox with method #1 (Cube rotating around the camera)
+    this.programCubeSkybox = utils.createProgram(gl, shaders.SkyBoxCubeVertexShader, shaders.SkyBoxCubeFragmentShader);
+    gl.useProgram(this.programCubeSkybox);
+    gl.uniformBlockBinding(this.programCubeSkybox, gl.getUniformBlockIndex(this.programCubeSkybox, 'Camera'), 0);
+    gl.uniform1i(gl.getUniformLocation(this.programCubeSkybox, "uSkybox"), 0);
+
+    // Create Shader Program for rendering of Skybox with method #2 (plane on camera's back frustum)
+    this.programPlaneSkybox = utils.createProgram(gl, shaders.SkyBoxPlaneVertexShader, shaders.SkyBoxPlaneFragmentShader);
+    gl.useProgram(this.programPlaneSkybox);
+    gl.uniformBlockBinding(this.programPlaneSkybox, gl.getUniformBlockIndex(this.programPlaneSkybox, 'Camera'), 0);
+    gl.uniform1i(gl.getUniformLocation(this.programPlaneSkybox, "uSkybox"), 0);
+
+    // Create Shader Program for rendering of the suzanne the monkey, and also create a method
+    // that can be reused if we need to recompile the shader (when changing settings etc)
+    this.createMonkeyProgram = (material, lights) => {
+      const { MonkeyVertexShader, MonkeyFragmentShader } = shaders;
+      if (this.monkeyProgram)
+        gl.deleteProgram(this.monkeyProgram);
+      this.programMonkey = utils.createProgram(gl, MonkeyVertexShader(material, lights), MonkeyFragmentShader(material, lights));
+      gl.useProgram(this.programMonkey);
+      gl.uniformBlockBinding(this.programMonkey, gl.getUniformBlockIndex(this.programMonkey, 'Camera'), 0);
+      gl.uniformBlockBinding(this.programMonkey, gl.getUniformBlockIndex(this.programMonkey, 'Material'), 1);
+      gl.uniformBlockBinding(this.programMonkey, gl.getUniformBlockIndex(this.programMonkey, 'Light'), 2);
+      gl.uniform1i(gl.getUniformLocation(this.programMonkey, "uSkybox"), 0);
+      this.programMonkey.uModel = gl.getUniformLocation(this.programMonkey, "uModel");
+    };
+    this.createMonkeyProgram(material, lights);
+    gl.useProgram(null);
+    
+    // Create Mesh Buffers for the skybox, one cube and one plane
+    this.meshCube = utils.createGenericMesh(gl, utils.createSimpleCubeMesh(1.0));
+    this.meshPlane = utils.createGenericMesh(gl, {...utils.createPlaneMesh(1.0, 0.999), normals: false });
+
+    // Create Mesh Buffers for the suzanne model, same as the monkeyShader program, we create a
+    // function that we can call create it again, when the settings changes
+    this.createMonkeyMesh = ({ lowpoly, flatten }) => {
+      if (this.monkeyMesh)
+        this.monkeyMesh.cleanup();
+      const source = lowpoly ? monkeyLowpoly : monkeyHighpoly;
+      this.meshMonkey = utils.createGenericMesh(gl, flatten ? utils.flattenMesh(source) : source);
+    };
+    this.createMonkeyMesh(mesh);
+
+    // Create Skybox cubemap texture
+    this.skyboxTexture = gl.createTexture();
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_CUBE_MAP, this.skyboxTexture);
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+    utils.loadSkyboxTexture(gl, this.skyboxTexture, skyboxImages[mesh.skyboxTexture]);
+
+    // For animating the monkey
+    this.monkeyTransform = mat4.create();
+
+    // Creating the update function for our render-loop
+    // Wrapping it in a closure here to keep the variables needed for calculations private,
+    // mostly just for the sanity I guessesess.. sneaky hobbbbbitses...
+    const updateGL = ((() => {
+      // The offset and rotation variables are for smoothing out the camera motions,
+      // when moving and zooming. The rotation is always slerping towards the desired
+      // rotation.
+      let camOffset = this.options.current.state.camera.offset;
+      const camRotation = [0, 0, 0, 1];
+      const lightRotation = quat.create();
+      const upwards = [];
+      return (gl, ts, dt) => {
+        camOffset = utils.lerp(camOffset, this.options.current.state.camera.offset, 0.05);
+        quat.slerp(camRotation, camRotation, this.options.current.state.camera.rotation, 0.05);
+        vec3.transformQuat(this.bufferCamera.position, [0, 0, camOffset], camRotation);
+        vec3.transformQuat(upwards, [0, 1, 0], camRotation);
+        mat4.lookAt(this.bufferCamera.view, this.bufferCamera.position, [0, 0, 0], upwards);
+        mat4.identity(this.monkeyTransform);
+        if (this.options.current.state.mesh.bounce)
+          mat4.translate(this.monkeyTransform, this.monkeyTransform, [0, Math.sin(ts * 0.001), 0]);
+        if (this.options.current.state.mesh.rotate)
+          mat4.rotateY(this.monkeyTransform, this.monkeyTransform, ts * 0.001);
+        if (this.options.current.state.mesh.lights) {
+          quat.fromEuler(lightRotation, Math.sin(ts * 0.001), Math.cos(ts * 0.002), Math.cos(ts * 0.0005));
+          for (let i = 0; i < this.options.current.state.lights.length; i++) {
+            const pos = this.bufferLight[`directionPosition_${i}`];
+            vec3.transformQuat(pos, pos, lightRotation);
+          }
+        }
+      };
+    })());
+
+    // Starting the render-loop, with 60 fps
+    gl.clearColor(0.05, 0.1, 0.2, 1.0);
+    gl.enable(gl.CULL_FACE);
+    gl.enable(gl.DEPTH_TEST);
+    Canvas.run(gl, 1000/60, true, updateGL, (gl, ts, dt) => {
+      this.bufferCamera.update();
+      this.bufferMaterial.update();
+      this.bufferLight.update();
+      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+      if (this.options.current.state.mesh.skyboxMethod === 'cube') {
+        gl.frontFace(gl.CW);
+        gl.useProgram(this.programCubeSkybox);
+        gl.bindVertexArray(this.meshCube.vertexArray);
+        gl.drawElements(gl.TRIANGLES, this.meshCube.length, gl.UNSIGNED_SHORT, 0);
+        gl.frontFace(gl.CCW);
+        gl.clear(gl.DEPTH_BUFFER_BIT);
+      } else {
+        gl.useProgram(this.programPlaneSkybox);
+        gl.bindVertexArray(this.meshPlane.vertexArray);
+        gl.drawElements(gl.TRIANGLES, this.meshPlane.length, gl.UNSIGNED_SHORT, 0);
+      }
+      gl.useProgram(this.programMonkey);
+      gl.uniformMatrix4fv(this.programMonkey.uModel, false, this.monkeyTransform);
+      gl.bindVertexArray(this.meshMonkey.vertexArray);
+      gl.drawElements(gl.TRIANGLES, this.meshMonkey.length, gl.UNSIGNED_SHORT, 0);
+      gl.bindVertexArray(null);
+      gl.bindBuffer(gl.ARRAY_BUFFER, null);
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+      gl.bindBuffer(gl.UNIFORM_BUFFER, null);
+      gl.useProgram(null);
+    });
+  };
+  render = () => (
+    <Canvas ref={this.gl}>
+      <OptionsGUI ref={this.options} controller={this} />
+    </Canvas>
+  );
+};
