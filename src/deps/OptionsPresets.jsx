@@ -1,30 +1,42 @@
-import React from 'react';
+import React, { Fragment } from 'react';
+import { createBrowserHistory } from 'history';
 import styled from 'styled-components';
 import presets from './presets.json';
 
-const loadConfig = name => () => {
-  window.sessionStorage.setItem("PG6201Config", JSON.stringify(presets[name]));
-  setTimeout(() => window.location.reload(), 0);
-};
-
-const reset = () => {
-  window.sessionStorage.removeItem("PG6201Config");
-  setTimeout(() => window.location.reload(), 0);
-};
 
 export class OptionsPresets extends React.Component {
+  constructor(props) {
+    super(props);
+    this.history = createBrowserHistory();
+    this.history.listen(location => this.setState(this.loadConfig(location)));
+    this.state = {
+      preset: this.loadConfig(this.history.location),
+    };
+  }
   componentDidCatch() {}
+  loadConfig = location => {
+    const name = location.search.slice(1);
+    return presets.hasOwnProperty(name) ? presets[name] : null;
+  };
+  setConfig = name => () => {
+    if (name) this.history.push(`?${name}`);
+    else this.history.push("");
+    this.setState({ preset: this.loadConfig(this.history.location) });
+  };
   render = () => (
-    <Container>
-      <Header>Presets</Header>
-      <Button onClick={loadConfig("ReflectionOnly")}>Reflection only</Button>
-      <Button onClick={loadConfig("ReflectionWithDiffuseSpecular")}>Reflection with Diffuse/Specular</Button>
-      <Button onClick={loadConfig("RefractionOnly")}>Refraction Only</Button>
-      <Button onClick={loadConfig("RefractionOnlyColors")}>Refraction Only (color dispersion)</Button>
-      <Button onClick={loadConfig("RefractionDispersionAndEverything")}>Refraction (color dispersion) with Diffuse/Specular</Button>
-      <Button onClick={loadConfig("OneWithEverything")}>One with everything</Button>
-      <Button onClick={reset}>Reset</Button>
-    </Container>
+    <Fragment>
+      <Container>
+        <Header>Presets</Header>
+        <Button onClick={this.setConfig("ReflectionOnly")}>Reflection only</Button>
+        <Button onClick={this.setConfig("ReflectionWithDiffuseSpecular")}>Reflection with Diffuse/Specular</Button>
+        <Button onClick={this.setConfig("RefractionOnly")}>Refraction Only</Button>
+        <Button onClick={this.setConfig("RefractionOnlyColors")}>Refraction Only (color dispersion)</Button>
+        <Button onClick={this.setConfig("RefractionDispersionAndEverything")}>Refraction (color dispersion) with Diffuse/Specular</Button>
+        <Button onClick={this.setConfig("OneWithEverything")}>One with everything</Button>
+        <Button onClick={this.setConfig(null)}>Reset</Button>
+      </Container>
+      {React.cloneElement(this.props.children, { preset: this.state.preset })}
+    </Fragment>
   );
 }
 

@@ -16,29 +16,32 @@ const useDebounce = (delay = 0) => {
   };
 };
 
-export const Provider = ({ children, load }) => {
+export const Provider = ({ children, preset = null }) => {
   const [ state, setState ] = useState({});
   const [ ready, setReady ] = useState(null);
   const debounce = useDebounce(0);
-  const proxy = useRef(undefined);
+  const baseline = useRef(changeProxy({}));
+  const proxy = useRef(changeProxy(preset || {}));
+
   const updater = useRef(dispatcher => {
+    dispatcher(baseline.current);
+    dispatcher(proxy.current);
+  });
+
+  useEffect(() => {
+    setReady(true);
+    setState(proxy.current());
     updater.current = dispatcher => {
       dispatcher(proxy.current);
       debounce(() => setState(proxy.current()));
     };
-    initialize();
-    updater.current(dispatcher);
-  });
-  const initialize = () => {
-    if (proxy.current !== undefined) return;
-    const session = load ? JSON.parse(window.sessionStorage.getItem(load)) : {};
-    proxy.current = changeProxy(session !== null ? session : {});
-  }
-  useEffect(() => {
-    initialize();
-    setReady(true);
-    setState(proxy.current());
   }, []);
+
+  useEffect(() => {
+    proxy.current = changeProxy(preset || baseline.current());
+    setState(proxy.current());
+  }, [ preset ]);
+
   const update = dispatcher => updater.current(dispatcher);
   return (
     <Context.Provider
@@ -118,10 +121,7 @@ export const Bool = ({ name, value, children }) => {
 export const Dropdown = ({ name, value, children }) => {
   const { state, update } = useContext(Context);
   useEffect(() => {
-    update(proxy => {
-      if (proxy[name].read() === undefined)
-        proxy[name].set(value[0]);
-    });
+    update(proxy => proxy[name].read() === undefined && proxy[name].set(value[0]));
     return () => update(proxy => proxy[name].delete());
   }, []);
   const onChange = ({ target }) => update(proxy => proxy[name].set(target.value));
@@ -136,13 +136,8 @@ export const Dropdown = ({ name, value, children }) => {
 export const Dictionary = ({ name, children }) => {
   const { ready, state, ...context } = useContext(Context);
   const active = useRef(true);
-  const loaded = useRef(false);
   useEffect(() => {
-    if (!loaded.current)
-      context.update(proxy => {
-        if (proxy[name].read() === undefined)
-          proxy[name].set({});
-      });
+    context.update(proxy => proxy[name].read() === undefined && proxy[name].set({}));
     return () => {
       active.current = false;
       context.update(proxy => proxy[name].delete());
@@ -151,12 +146,12 @@ export const Dictionary = ({ name, children }) => {
   const update = dispatcher => {
     if (!active.current) return;
     context.update((proxy, ...args) => {
-      if (!loaded.current) {
-        loaded.current = true;
-        if (proxy[name].read() === undefined)
-          proxy[name].set({});
-      } 
-      dispatcher(proxy[name]);
+      try {
+        dispatcher(proxy[name]);
+      } catch(e) {
+        proxy[name].set({});
+        dispatcher(proxy[name]);
+      }
     });
   };
   return (
@@ -171,14 +166,12 @@ export const List = ({ name, children, min = 0, max = 10 }) => {
   const [ list, setList ] = useState(Array.from(Array(min)).map((_, i) => i));
   const { ready, state, ...context } = useContext(Context);
   const active = useRef(true);
-  const loaded = useRef(false);
+  const debounce = useDebounce(0);
   useEffect(() => {
-    if (!loaded.current)
-      context.update(proxy => {
-        if (proxy[name] === undefined)
-          proxy[name].set([]);
-        else setList(proxy[name].read().map((_, i) => i));
-      });
+    context.update(proxy => {
+      if (proxy[name] === undefined) proxy[name].set([]);
+      else setList(proxy[name].read().map((_, i) => i));
+    });
     return () => {
       active.current = false;
       context.update(proxy => proxy[name].delete());
@@ -188,16 +181,23 @@ export const List = ({ name, children, min = 0, max = 10 }) => {
     if (state[name] && list.length < state[name].length)
       context.update(proxy => proxy[name].splice(-1));
   }, [ list ]);
+  useEffect(() => {
+    if (state[name] === undefined) return;
+    if (list.length === state[name].length) return;
+     setList(state[name].map((_, i) => i));
+  }, [ state ]);
   const update = dispatcher => {
     if (!active.current) return;
     context.update(proxy => {
-      if (!loaded.current) {
-        loaded.current = true;
-        if (proxy[name].read() === undefined)
-          proxy[name].set([]);
+      try {
+        dispatcher(proxy[name]);
+      } catch(e) {
+        if (proxy[name].read() === undefined) proxy[name].set([]);
         else setList(proxy[name].read().map((_, i) => i));
+        dispatcher(proxy[name]);
       }
-      dispatcher(proxy[name]);
+      if (list.length !== proxy[name].read().length)
+        setList(proxy[name].read().map((_, i) => i));
     });
   };
   const increment = () => (list.length < max) && setList([...list, list.length]);
@@ -213,13 +213,8 @@ export const List = ({ name, children, min = 0, max = 10 }) => {
 export const Vector = ({ name, value = [0, 0, 0], children, validate = noop, ...props }) => {
   const { ready, state, ...context } = useContext(Context);
   const active = useRef(true);
-  const loaded = useRef(false);
   useEffect(() => {
-    if (!loaded.current)
-      context.update(proxy => {
-        if (proxy[name].read() === undefined)
-          proxy[name].set(value);
-      });
+    context.update(proxy => proxy[name].read() === undefined && proxy[name].set(value));
     return () => {
       active.current = false;
       context.update(proxy => proxy[name].delete());
@@ -228,12 +223,12 @@ export const Vector = ({ name, value = [0, 0, 0], children, validate = noop, ...
   const update = dispatcher => {
     if (!active.current) return;
     context.update(proxy => {
-      if (!loaded.current) {
-        loaded.current = true;
-        if (proxy[name].read() === undefined)
-          proxy[name].set(value);
+      try {
+        dispatcher(proxy[name]);
+      } catch(e) {
+        proxy[name].set(value);
+        dispatcher(proxy[name]);
       }
-      dispatcher(proxy[name]);
       validate(proxy[name]);
     });
   };

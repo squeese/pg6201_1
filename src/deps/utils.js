@@ -230,7 +230,7 @@ export const createGenericMesh = (gl, { vertices, indices, normals }) => {
 export const loadImage = url => new Promise((resolve, reject) => {
   const image = document.createElement("img");
   image.crossOrigin = "";
-  image.src = `${window.location.href}${url}`;
+  image.src = `/${url}`;
   image.addEventListener("load", function cb() {
     image.removeEventListener("load", cb);
     resolve(image);

@@ -1,7 +1,6 @@
 import React, { createRef, Component } from 'react';
 import { mat4, quat, vec3 } from 'gl-matrix';
 import { OptionsGUI, skyboxImages } from './deps/OptionsGUI';
-import { OptionsPresets } from './deps/OptionsPresets';
 import { Canvas } from './deps/Canvas';
 import monkeyHighpoly from './deps/models/suzanneHighpoly.json';
 import monkeyLowpoly from './deps/models/suzanneLowpoly.json';
@@ -128,9 +127,10 @@ export default class extends Component {
             const pos = this.bufferLight[`directionPosition_${i}`];
             vec3.transformQuat(pos, pos, lightRotation);
           }
-        }
+        };
       };
     })());
+
 
     // Starting the render-loop, with 60 fps
     gl.clearColor(0.05, 0.1, 0.2, 1.0);
@@ -167,7 +167,6 @@ export default class extends Component {
   render = () => (
     <Canvas ref={this.gl}>
       <OptionsGUI ref={this.options} controller={this} />
-      <OptionsPresets />
     </Canvas>
   );
 };
