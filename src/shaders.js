@@ -35,8 +35,8 @@ uniform Camera {
 layout(location=0) in vec3 aPosition;
 out vec3 vUv;
 void main() {
-  gl_Position = vec4(aPosition, 1.0);
-  vec4 P0 = inverse(uCamera.projection * uCamera.view) * vec4(aPosition, 1.0);
+  gl_Position = vec4(aPosition.xy, 0.999, 1.0);
+  vec4 P0 = inverse(uCamera.projection * uCamera.view) * vec4(aPosition.xy, 0.999, 1.0);
   vec3 P1 = P0.xyz / P0.w;
   vUv = normalize(P1 - uCamera.position.xyz);
 }
@@ -52,7 +52,7 @@ void main() {
 }
 `;
 
-export const MonkeyVertexShader = ({}) => `#version 300 es
+export const MonkeyVertexShader = () => `#version 300 es
 precision mediump float;
 layout(std140, column_major) uniform;
 uniform Camera {

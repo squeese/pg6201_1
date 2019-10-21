@@ -1,4 +1,4 @@
-import { quat, vec3, mat3 } from 'gl-matrix';
+import { quat, vec3 } from 'gl-matrix';
 
 export const lerp = (a, b, t) => a + (b - a) * t;
 
@@ -20,23 +20,23 @@ export const createProgram = (gl, vs, fs) => {
   gl.attachShader(program, loadShader(gl, gl.FRAGMENT_SHADER, fs));
   gl.linkProgram(program);
   if (!gl.getProgramParameter(program, gl.LINK_STATUS))
-    throw `Unable to initialize shader`;
+    throw new Error(`Unable to initialize shader`);
   return program;
 };
 
 export const linkProgram = (gl, program) => {
   gl.linkProgram(program);
   if (!gl.getProgramParameter(program, gl.LINK_STATUS))
-    throw `Unable to link shader`;
+    throw new Error(`Unable to link shader`);
   return program;
 };
 
-export const createPlaneMesh = (size = 1, depth = 0) => ({
+export const createPlaneMesh = (size = 1) => ({
   vertices: new Float32Array([
-    -size, -size, depth,
-    size, -size, depth,
-    -size, size, depth,
-    size, size, depth
+    -size, -size, 0,
+    size, -size, 0,
+    -size, size, 0,
+    size, size, 0, 
   ]),
   normals: new Float32Array([
     0.0, 0.0, 1.0,
@@ -340,6 +340,7 @@ export const zip = (size, arr) => {
   return result;
 }
 
+// hmm..
 export const resetRoll = (out, rotation) => {
   const R = [];
   const U = vec3.transformQuat([], [0, 1, 0], rotation);

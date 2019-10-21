@@ -1,0 +1,584 @@
+{
+  "ReflectionOnly": {
+    "camera": {
+      "fov": 45,
+      "near": 0.1,
+      "far": 100,
+      "offset": 5.300000000000016,
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ]
+    },
+    "material": {
+      "ambient": [
+        0.05,
+        0.05,
+        0.05
+      ],
+      "diffuse": [
+        0,
+        0,
+        0
+      ],
+      "specular": [
+        0,
+        0,
+        0
+      ],
+      "highlight": 1,
+      "reflectionScalar": 1,
+      "refractionScalar": 0,
+      "refractionIndex": [
+        0.8,
+        0.85,
+        0.8
+      ],
+      "refractColors": true
+    },
+    "lights": [
+      {
+        "ambient": [
+          0.05,
+          0.05,
+          0.05
+        ],
+        "diffuse": [
+          0.7,
+          0.7,
+          0.7
+        ],
+        "specular": [
+          0.7,
+          0.7,
+          0.7
+        ],
+        "vector": [
+          0,
+          1,
+          0
+        ]
+      }
+    ],
+    "mesh": {
+      "skyboxMethod": "frustum plane",
+      "skyboxTexture": "totality",
+      "lowpoly": false,
+      "flatten": false,
+      "bounce": false,
+      "rotate": true,
+      "lights": true
+    }
+  },
+  "ReflectionWithDiffuseSpecular": {
+    "camera": {
+      "fov": 45,
+      "near": 0.1,
+      "far": 100,
+      "offset": 5.300000000000016,
+      "rotation": [
+        -0.05066496416631067,
+        -0.25419997751604806,
+        -0.03326336070469565,
+        0.9652507351312902
+      ]
+    },
+    "material": {
+      "ambient": [
+        0.05,
+        0.05,
+        0.05
+      ],
+      "diffuse": [
+        0.45399999999999957,
+        0.5,
+        0.7
+      ],
+      "specular": [
+        0.6080000000000003,
+        0.7,
+        0.7
+      ],
+      "highlight": 128,
+      "reflectionScalar": 1,
+      "refractionScalar": 0,
+      "refractionIndex": [
+        0.8,
+        0.85,
+        0.8
+      ],
+      "refractColors": true
+    },
+    "lights": [
+      {
+        "ambient": [
+          0.05,
+          0.05,
+          0.05
+        ],
+        "diffuse": [
+          0.5,
+          0.5,
+          0.5439999999999996
+        ],
+        "specular": [
+          0.5,
+          0.5,
+          0.5
+        ],
+        "vector": [
+          0.5825975331217605,
+          0.8127607977753597,
+          0
+        ]
+      },
+      {
+        "ambient": [
+          0.05,
+          0.05,
+          0.05
+        ],
+        "diffuse": [
+          0.3989999999999996,
+          0.5,
+          0.5
+        ],
+        "specular": [
+          0.5,
+          0.5,
+          0.5
+        ],
+        "vector": [
+          0,
+          0.8521293498010266,
+          0.5233312251410952
+        ]
+      }
+    ],
+    "mesh": {
+      "skyboxMethod": "frustum plane",
+      "skyboxTexture": "totality",
+      "lowpoly": false,
+      "flatten": false,
+      "bounce": false,
+      "rotate": false,
+      "lights": true
+    }
+  },
+  "RefractionOnly": {
+    "camera": {
+      "fov": 45,
+      "near": 0.1,
+      "far": 100,
+      "offset": 6.5000000000000115,
+      "rotation": {
+        "0": 0.005494584143800197,
+        "1": 0.8002660218936885,
+        "2": 0.014056784823739598,
+        "3": -0.599455074244449
+      }
+    },
+    "material": {
+      "ambient": [
+        0.05,
+        0.05,
+        0.05
+      ],
+      "diffuse": [
+        0,
+        0,
+        0
+      ],
+      "specular": [
+        0,
+        0,
+        0
+      ],
+      "highlight": 1,
+      "reflectionScalar": 0,
+      "refractionScalar": 1,
+      "refractionIndex": [
+        0.9,
+        0.85,
+        0.8
+      ],
+      "refractColors": false
+    },
+    "lights": [
+      {
+        "ambient": [
+          0.05,
+          0.05,
+          0.05
+        ],
+        "diffuse": [
+          0.5,
+          0.5,
+          0.5439999999999996
+        ],
+        "specular": [
+          0.5,
+          0.5,
+          0.5
+        ],
+        "vector": [
+          0.5825975331217605,
+          0.8127607977753597,
+          0
+        ]
+      },
+      {
+        "ambient": [
+          0.05,
+          0.05,
+          0.05
+        ],
+        "diffuse": [
+          0.3989999999999996,
+          0.5,
+          0.5
+        ],
+        "specular": [
+          0.5,
+          0.5,
+          0.5
+        ],
+        "vector": [
+          0,
+          0.8521293498010266,
+          0.5233312251410952
+        ]
+      }
+    ],
+    "mesh": {
+      "skyboxMethod": "frustum plane",
+      "skyboxTexture": "totality",
+      "lowpoly": false,
+      "flatten": false,
+      "bounce": false,
+      "rotate": true,
+      "lights": true
+    }
+  },
+  "RefractionOnlyColors": {
+    "camera": {
+      "fov": 45,
+      "near": 0.1,
+      "far": 100,
+      "offset": 6.5000000000000115,
+      "rotation": {
+        "0": 0.005494584143800197,
+        "1": 0.8002660218936885,
+        "2": 0.014056784823739598,
+        "3": -0.599455074244449
+      }
+    },
+    "material": {
+      "ambient": [
+        0.05,
+        0.05,
+        0.05
+      ],
+      "diffuse": [
+        0,
+        0,
+        0
+      ],
+      "specular": [
+        0,
+        0,
+        0
+      ],
+      "highlight": 1,
+      "reflectionScalar": 0,
+      "refractionScalar": 1,
+      "refractionIndex": [
+        0.9,
+        0.9380000000000001,
+        0.969
+      ],
+      "refractColors": true
+    },
+    "lights": [
+      {
+        "ambient": [
+          0.05,
+          0.05,
+          0.05
+        ],
+        "diffuse": [
+          0.5,
+          0.5,
+          0.5439999999999996
+        ],
+        "specular": [
+          0.5,
+          0.5,
+          0.5
+        ],
+        "vector": [
+          0.5825975331217605,
+          0.8127607977753597,
+          0
+        ]
+      },
+      {
+        "ambient": [
+          0.05,
+          0.05,
+          0.05
+        ],
+        "diffuse": [
+          0.3989999999999996,
+          0.5,
+          0.5
+        ],
+        "specular": [
+          0.5,
+          0.5,
+          0.5
+        ],
+        "vector": [
+          0,
+          0.8521293498010266,
+          0.5233312251410952
+        ]
+      }
+    ],
+    "mesh": {
+      "skyboxMethod": "frustum plane",
+      "skyboxTexture": "totality",
+      "lowpoly": false,
+      "flatten": false,
+      "bounce": false,
+      "rotate": true,
+      "lights": true
+    }
+  },
+  "RefractionDispersionAndEverything": {
+    "camera": {
+      "fov": 45,
+      "near": 0.1,
+      "far": 100,
+      "offset": 6.600000000000011,
+      "rotation": {
+        "0": 0.03485574358263762,
+        "1": -0.07120576123112157,
+        "2": -0.018875185868362454,
+        "3": -0.9966736775668744
+      }
+    },
+    "material": {
+      "ambient": [
+        0.05,
+        0.05,
+        0.05
+      ],
+      "diffuse": [
+        1,
+        0.7979999999999998,
+        0.6129999999999997
+      ],
+      "specular": [
+        0.5129999999999996,
+        0.7190000000000003,
+        0.2420000000000001
+      ],
+      "highlight": 256,
+      "reflectionScalar": 0,
+      "refractionScalar": 0.7679999999999998,
+      "refractionIndex": [
+        0.9,
+        0.9380000000000001,
+        0.969
+      ],
+      "refractColors": true
+    },
+    "lights": [
+      {
+        "ambient": [
+          0.05,
+          0.05,
+          0.05
+        ],
+        "diffuse": [
+          0.5,
+          0.5,
+          0.5439999999999996
+        ],
+        "specular": [
+          0.5,
+          0.5,
+          0.5
+        ],
+        "vector": [
+          0.26385744596287547,
+          0.35499503535917454,
+          -0.8968599517652055
+        ]
+      },
+      {
+        "ambient": [
+          0.05,
+          0.05,
+          0.05
+        ],
+        "diffuse": [
+          0.46799999999999964,
+          0.6550000000000001,
+          0.6410000000000001
+        ],
+        "specular": [
+          0.5,
+          0.5,
+          0.5
+        ],
+        "vector": [
+          0,
+          0.8453432527846482,
+          0.534223534647689
+        ]
+      }
+    ],
+    "mesh": {
+      "skyboxMethod": "frustum plane",
+      "skyboxTexture": "totality",
+      "lowpoly": false,
+      "flatten": false,
+      "bounce": true,
+      "rotate": false,
+      "lights": true
+    }
+  },
+  "OneWithEverything": {
+    "camera": {
+      "fov": 45,
+      "near": 0.1,
+      "far": 100,
+      "offset": 8,
+      "rotation": {
+        "0": 0.13410399854183197,
+        "1": -0.3918420672416687,
+        "2": -0.05784846097230911,
+        "3": -0.908366322517395,
+        "4": 0,
+        "5": 1,
+        "6": 0,
+        "7": 0,
+        "8": 0,
+        "9": 0,
+        "10": 1,
+        "11": 0,
+        "12": 0,
+        "13": 0,
+        "14": 0,
+        "15": 1
+      }
+    },
+    "material": {
+      "ambient": [
+        0.05,
+        0.05,
+        0.05
+      ],
+      "diffuse": [
+        0.7139999999999997,
+        0.8039999999999998,
+        0.6129999999999997
+      ],
+      "specular": [
+        0.5129999999999996,
+        0.5610000000000002,
+        1
+      ],
+      "highlight": 1024,
+      "reflectionScalar": 1,
+      "refractionScalar": 0.4249999999999995,
+      "refractionIndex": [
+        0.9,
+        0.9380000000000001,
+        0.969
+      ],
+      "refractColors": true
+    },
+    "lights": [
+      {
+        "ambient": [
+          0.05,
+          0.05,
+          0.05
+        ],
+        "diffuse": [
+          0.3979999999999999,
+          0.42299999999999993,
+          0.5439999999999996
+        ],
+        "specular": [
+          0.43199999999999994,
+          0.4009999999999999,
+          0.5
+        ],
+        "vector": [
+          0.26385744596287547,
+          0.35499503535917454,
+          -0.8968599517652055
+        ]
+      },
+      {
+        "ambient": [
+          0.05,
+          0.05,
+          0.05
+        ],
+        "diffuse": [
+          0.25499999999999945,
+          0.3659999999999999,
+          0.3749999999999999
+        ],
+        "specular": [
+          0.45299999999999996,
+          0.3959999999999999,
+          0.44799999999999995
+        ],
+        "vector": [
+          0,
+          0.8453432527846482,
+          0.534223534647689
+        ]
+      },
+      {
+        "ambient": [
+          0.05,
+          0.05,
+          0.05
+        ],
+        "diffuse": [
+          0.3,
+          0.3,
+          0.3
+        ],
+        "specular": [
+          0.2,
+          0.2,
+          0.2
+        ],
+        "vector": [
+          0.48040095775558256,
+          0.8770489836876382,
+          0
+        ]
+      }
+    ],
+    "mesh": {
+      "skyboxMethod": "cube",
+      "skyboxTexture": "greenspace",
+      "lowpoly": false,
+      "flatten": false,
+      "bounce": false,
+      "rotate": true,
+      "lights": true
+    }
+  }
+}

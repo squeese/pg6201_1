@@ -1,10 +1,10 @@
 import React, { Fragment, forwardRef } from 'react';
-import { vec3, quat, mat3, mat4 } from 'gl-matrix';
+import { vec3, quat, mat4 } from 'gl-matrix';
 import * as Options from './Options';
 import * as utils from './utils';
 
 export const OptionsGUI = forwardRef(({ controller }, ref) => (
-  <Options.Provider load="test:save">
+  <Options.Provider load="PG6201Config">
     <Options.Container>
       <Options.Wrapper>
         <Options.Dictionary name="camera">
@@ -125,19 +125,22 @@ export const OptionsGUI = forwardRef(({ controller }, ref) => (
               utils.loadSkyboxTexture(controller.gl.current, controller.skyboxTexture, skyboxImages[mesh.skyboxTexture]);
           }} />
         </Options.Dictionary>
+        {/*
         <Options.Row>
           <Options.Context.Consumer>
             {context => (
               <Fragment>
-                <button onClick={() => window.sessionStorage.setItem("test:save", JSON.stringify(context.state))}>Save</button>
+                <input id="clipboard" value={JSON.stringify(context.state, null, 3)} onChange={() => {}} />
                 <button onClick={() => {
-                  window.sessionStorage.removeItem("test:save");
-                  window.location.reload();
-                }}>Reset</button>
+                  const input = document.getElementById("clipboard");
+                  input.select();
+                  document.execCommand("copy");
+                }}>Save</button>
               </Fragment>
             )}
           </Options.Context.Consumer>
         </Options.Row>
+        */}
       </Options.Wrapper>
     </Options.Container>
     <Options.Event onReady={context => {
