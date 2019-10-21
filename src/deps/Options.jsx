@@ -22,12 +22,10 @@ export const Provider = ({ children, preset = null }) => {
   const debounce = useDebounce(0);
   const baseline = useRef(changeProxy({}));
   const proxy = useRef(changeProxy(preset || {}));
-
   const updater = useRef(dispatcher => {
     dispatcher(baseline.current);
     dispatcher(proxy.current);
   });
-
   useEffect(() => {
     setReady(true);
     setState(proxy.current());
@@ -36,12 +34,10 @@ export const Provider = ({ children, preset = null }) => {
       debounce(() => setState(proxy.current()));
     };
   }, []);
-
   useEffect(() => {
     proxy.current = changeProxy(preset || baseline.current());
     setState(proxy.current());
   }, [ preset ]);
-
   const update = dispatcher => updater.current(dispatcher);
   return (
     <Context.Provider

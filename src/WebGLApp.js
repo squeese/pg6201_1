@@ -17,6 +17,9 @@ export default class extends Component {
     const gl = this.gl.current;
 
     // Create the Camera Uniform Block Buffer
+    // All three buffers (Camera, Light and Material) are created this way in a javascript ArrayBuffer object,
+    // instead of individual Float32Array's, since it's better to be able to 'upload' one large arraybuffer,
+    // rather than many individual arrays one at a time
     this.bufferCamera = utils.createUniformBuffer(gl, 0,
       "projection", 16,  mat4.perspective(mat4.create(), camera.fov*(Math.PI/180), window.innerWidth/window.innerHeight, camera.near, camera.far),
       "view",       16,  null,
@@ -64,6 +67,8 @@ export default class extends Component {
       const { MonkeyVertexShader, MonkeyFragmentShader } = shaders;
       if (this.monkeyProgram)
         gl.deleteProgram(this.monkeyProgram);
+      // We need to pass in settings in use when creating the source for the shader, since the buffers changes
+      // depending on the amount of lights, and if we want refraction for all colors
       this.programMonkey = utils.createProgram(gl, MonkeyVertexShader(material, lights), MonkeyFragmentShader(material, lights));
       gl.useProgram(this.programMonkey);
       gl.uniformBlockBinding(this.programMonkey, gl.getUniformBlockIndex(this.programMonkey, 'Camera'), 0);
@@ -80,7 +85,7 @@ export default class extends Component {
     this.meshPlane = utils.createGenericMesh(gl, {...utils.createPlaneMesh(1.0, 0.999), normals: false });
 
     // Create Mesh Buffers for the suzanne model, same as the monkeyShader program, we create a
-    // function that we can call create it again, when the settings changes
+    // function that we can call and create it again, when the settings changes
     this.createMonkeyMesh = ({ lowpoly, flatten }) => {
       if (this.monkeyMesh)
         this.monkeyMesh.cleanup();
@@ -104,23 +109,28 @@ export default class extends Component {
     // mostly just for the sanity I guessesess.. sneaky hobbbbbitses...
     const updateGL = ((() => {
       // The offset and rotation variables are for smoothing out the camera motions,
-      // when moving and zooming. The rotation is always slerping towards the desired
-      // rotation.
+      // when moving and zooming. The rotation is always slerping towards the desired rotation.
       let camOffset = this.options.current.state.camera.offset;
       const camRotation = [0, 0, 0, 1];
       const lightRotation = quat.create();
       const upwards = [];
       return (gl, ts, dt) => {
+        // lerping and slerping the zoom/rotation to smooth out the camera motions
         camOffset = utils.lerp(camOffset, this.options.current.state.camera.offset, 0.05);
         quat.slerp(camRotation, camRotation, this.options.current.state.camera.rotation, 0.05);
+        // with the rotation/offset, need to update the camera position, to compute the view matrix
         vec3.transformQuat(this.bufferCamera.position, [0, 0, camOffset], camRotation);
         vec3.transformQuat(upwards, [0, 1, 0], camRotation);
         mat4.lookAt(this.bufferCamera.view, this.bufferCamera.position, [0, 0, 0], upwards);
+        // some monkey bounce/rotate shenanigans
         mat4.identity(this.monkeyTransform);
         if (this.options.current.state.mesh.bounce)
           mat4.translate(this.monkeyTransform, this.monkeyTransform, [0, Math.sin(ts * 0.001), 0]);
         if (this.options.current.state.mesh.rotate)
           mat4.rotateY(this.monkeyTransform, this.monkeyTransform, ts * 0.001);
+        // Moving the lights. Currently this is kinda poorly implemented, since it alters the position
+        // of the light inside the light's uniform buffer, meaning it will then differ from the values
+        // in the settings panel, so when the user alters the position, the light will jump unexpectedly
         if (this.options.current.state.mesh.lights) {
           quat.fromEuler(lightRotation, Math.sin(ts * 0.001), Math.cos(ts * 0.002), Math.cos(ts * 0.0005));
           for (let i = 0; i < this.options.current.state.lights.length; i++) {
@@ -131,24 +141,32 @@ export default class extends Component {
       };
     })());
 
-
     // Starting the render-loop, with 60 fps
     gl.clearColor(0.05, 0.1, 0.2, 1.0);
     gl.enable(gl.CULL_FACE);
     gl.enable(gl.DEPTH_TEST);
     Canvas.run(gl, 1000/60, true, updateGL, (gl, ts, dt) => {
-      this.bufferCamera.update();
-      this.bufferMaterial.update();
-      this.bufferLight.update();
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+      // sending the three ArrayBuffers to the gpu
+      gl.bindBuffer(gl.UNIFORM_BUFFER, this.bufferCamera.glBuffer);
+      gl.bufferSubData(gl.UNIFORM_BUFFER, 0, this.bufferCamera);
+      gl.bindBuffer(gl.UNIFORM_BUFFER, this.bufferMaterial.glBuffer);
+      gl.bufferSubData(gl.UNIFORM_BUFFER, 0, this.bufferMaterial);
+      gl.bindBuffer(gl.UNIFORM_BUFFER, this.bufferLight.glBuffer);
+      gl.bufferSubData(gl.UNIFORM_BUFFER, 0, this.bufferLight);
       if (this.options.current.state.mesh.skyboxMethod === 'cube') {
+        // since the camera is inside the box, we need to flip the frontFace, so we can see it
         gl.frontFace(gl.CW);
         gl.useProgram(this.programCubeSkybox);
         gl.bindVertexArray(this.meshCube.vertexArray);
         gl.drawElements(gl.TRIANGLES, this.meshCube.length, gl.UNSIGNED_SHORT, 0);
         gl.frontFace(gl.CCW);
+        // the box is only of 2 unit size, way to small to contain the entire world, so to solve
+        // this, we just clear the depth buffer, so it's impossible for the rest of the render
+        // to actually render anything behind it
         gl.clear(gl.DEPTH_BUFFER_BIT);
       } else {
+        // or we just use a plane on the back of the camera frustum
         gl.useProgram(this.programPlaneSkybox);
         gl.bindVertexArray(this.meshPlane.vertexArray);
         gl.drawElements(gl.TRIANGLES, this.meshPlane.length, gl.UNSIGNED_SHORT, 0);
