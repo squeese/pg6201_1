@@ -168,22 +168,6 @@ export const skyboxImages = {
     'totality/totality_ft.png',
     'totality/totality_bk.png',
   ],
-  druidcove: [
-    'druidcove/druidcove_rt.png',
-    'druidcove/druidcove_lf.png',
-    'druidcove/druidcove_up.png',
-    'druidcove/druidcove_dn.png',
-    'druidcove/druidcove_ft.png',
-    'druidcove/druidcove_bk.png',
-  ],
-  violentdays: [
-    'violentdays/violentdays_rt.png',
-    'violentdays/violentdays_lf.png',
-    'violentdays/violentdays_up.png',
-    'violentdays/violentdays_dn.png',
-    'violentdays/violentdays_ft.png',
-    'violentdays/violentdays_bk.png',
-  ],
   greenspace: [
     'greenspace/skybox_z_p.png',
     'greenspace/skybox_z_n.png',
@@ -191,14 +175,6 @@ export const skyboxImages = {
     'greenspace/skybox_y_n.png',
     'greenspace/skybox_x_p.png',
     'greenspace/skybox_x_n.png',
-  ],
-  lmcity: [
-    'lmcity/lmcity_rt.png',
-    'lmcity/lmcity_lf.png',
-    'lmcity/lmcity_up.png',
-    'lmcity/lmcity_dn.png',
-    'lmcity/lmcity_ft.png',
-    'lmcity/lmcity_bk.png',
   ],
   hourglass: [
     'hourglass/hourglass_rt.png',
