@@ -157,21 +157,13 @@ export const OptionsGUI = forwardRef(({ controller }, ref) => (
 ));
 
 export const skyboxImages = {
-  classmplanet: [
-    'classmplanet/classmplanet_rt.png',
-    'classmplanet/classmplanet_lf.png',
-    'classmplanet/classmplanet_up.png',
-    'classmplanet/classmplanet_dn.png',
-    'classmplanet/classmplanet_ft.png',
-    'classmplanet/classmplanet_bk.png',
-  ],
-  deset_night: [
-    'desert_night/desert_night_rt.png',
-    'desert_night/desert_night_lf.png',
-    'desert_night/desert_night_up.png',
-    'desert_night/desert_night_dn.png',
-    'desert_night/desert_night_ft.png',
-    'desert_night/desert_night_bk.png',
+  totality: [
+    'totality/totality_rt.png',
+    'totality/totality_lf.png',
+    'totality/totality_up.png',
+    'totality/totality_dn.png',
+    'totality/totality_ft.png',
+    'totality/totality_bk.png',
   ],
   druidcove: [
     'druidcove/druidcove_rt.png',
@@ -180,14 +172,6 @@ export const skyboxImages = {
     'druidcove/druidcove_dn.png',
     'druidcove/druidcove_ft.png',
     'druidcove/druidcove_bk.png',
-  ],
-  iceflats: [
-    'iceflats/iceflats_rt.png',
-    'iceflats/iceflats_lf.png',
-    'iceflats/iceflats_up.png',
-    'iceflats/iceflats_dn.png',
-    'iceflats/iceflats_ft.png',
-    'iceflats/iceflats_bk.png',
   ],
   violentdays: [
     'violentdays/violentdays_rt.png',
@@ -204,22 +188,6 @@ export const skyboxImages = {
     'greenspace/skybox_y_n.png',
     'greenspace/skybox_x_p.png',
     'greenspace/skybox_x_n.png',
-  ],
-  blackspace: [
-    'blackspace/stars_z_p.png',
-    'blackspace/stars_z_n.png',
-    'blackspace/stars_y_p.png',
-    'blackspace/stars_y_n.png',
-    'blackspace/stars_x_p.png',
-    'blackspace/stars_x_n.png',
-  ],
-  totality: [
-    'totality/totality_rt.png',
-    'totality/totality_lf.png',
-    'totality/totality_up.png',
-    'totality/totality_dn.png',
-    'totality/totality_ft.png',
-    'totality/totality_bk.png',
   ],
   lmcity: [
     'lmcity/lmcity_rt.png',
