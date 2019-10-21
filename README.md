@@ -1,8 +1,8 @@
 Running the application:
   To run this project (exam), serve the files in the build folder with any http-server.
-  With nodejs that could be either of
-    serve -s build        (in the project folder)
-    http-server build     (in the project folder)
+  With nodejs that could be either of these when in the project folder
+    serve -s build
+    http-server build
 
   Build the project
     yarn install          (or npm)
