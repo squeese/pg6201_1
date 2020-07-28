@@ -1,4 +1,4 @@
-Graphics Programming Exam (PG60201)
+Graphics Programming Exam (PG6201 #1)
 Kristiania University College, October 2019.
 [View result here](https://lennarthansen.dev/reflections/live)
 
