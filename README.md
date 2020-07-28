@@ -1,12 +1,16 @@
-# Running the application:
-To run this project (exam), serve the files in the build folder with any http-server.
-With nodejs that could be either of these when in the project folder
-* serve -s build
-* http-server build
+Graphics Programming Exam (PG60201)
+Kristiania University College, October 2019.
+[View result here](https://lennarthansen.dev/reflections/live)
 
 # Build the project
 * yarn install          (or npm)
 * yarn build            (or 'start' to run the development build/server)
+
+# Running the application
+To run this project (exam), serve the files in the build folder with any http-server.
+With nodejs that could be either of these when in the project folder
+* serve -s build
+* http-server build
 
 # Using the application
 As for instructions as to 'control' or use the exam application, you can
